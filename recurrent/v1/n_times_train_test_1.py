@@ -29,13 +29,13 @@ if __name__ == '__main__':
         y_train = to_categorical(training_data[:, -1])
         x_train = x_train[:, :, 1:]
 
-        model, model_name = create_lstm_v1_1()
+        model, model_name = create_lstm_v1_4()
 
         model.compile(optimizer=Adam(learning_rate=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
         model.summary()
 
-        fit_history = model.fit(x_train, y_train, shuffle=True, validation_split=validation_split, epochs=600,
-                                batch_size=32)
+        fit_history = model.fit(x_train, y_train, shuffle=True, validation_split=validation_split, epochs=400,
+                                batch_size=64)
 
         print("\n")
         print("Using %d samples for training and %d for validation" % (
