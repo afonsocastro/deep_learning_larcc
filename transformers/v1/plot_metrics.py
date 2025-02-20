@@ -3,6 +3,8 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+# from deep_learning_larcc.config.PDF import PDF
+from deep_learning_larcc.config.PDF2 import PDF
 
 if __name__ == '__main__':
     labels = ["Accuracy", "Precision", "Recall", "F1 score"]
@@ -98,9 +100,42 @@ if __name__ == '__main__':
     ax.set_xticks(x)
     ax.set_xticklabels(labels)
     ax.legend()
-    ax.set_title("Mean & Standard Deviation - Transformers v1 - 100 simulations (train + dataset1 test)", fontsize=14, fontweight='bold')
+    ax.set_title("Mean & Standard Deviation - Transformers v1 - 100 simulations (train + dataset1 test)", fontsize=14,
+                 fontweight='bold')
+
     # Show the plot
     fig.tight_layout()
     delta = 0.03
-    plt.ylim([min(v1_0_mean + v1_1_mean + v1_2_mean + v1_3_mean + v1_4_mean + v1_5_mean) - delta, max(v1_0_mean + v1_1_mean + v1_2_mean + v1_4_mean + v1_5_mean) + delta])
+    plt.ylim([min(v1_0_mean + v1_1_mean + v1_2_mean + v1_3_mean + v1_4_mean + v1_5_mean) - delta,
+              max(v1_0_mean + v1_1_mean + v1_2_mean + v1_4_mean + v1_5_mean) + delta])
     plt.show()
+
+    # Table comparing every metrics (in pdf) -------------------------------------------------------------------------
+    # Interquartile Range: the smaller the better
+    # Coefficient of Variation: the lower the better
+
+    pdf = PDF(title='Statistical Metrics - 100 simulations (train + dataset1 test)')
+    pdf.add_page()
+    pdf.set_font("Times", size=9)
+
+    for mtrc, met_title in [("accuracy", "Accuracy"), ("precision", "Precision"), ("recall", "Recall"),
+                            ("f1", "F1-score")]:
+        data = [
+            [met_title, "Interquartile Range", "Coefficient of Variation", "95% Confidence Interval", ],
+            ["Transformer v1.0", data_v1_0[mtrc]["iqr"], data_v1_0[mtrc]["cv"], data_v1_0[mtrc][
+                "95_confidence_interval"], ],
+            ["Transformer v1.1", data_v1_1[mtrc]["iqr"], data_v1_1[mtrc]["cv"], data_v1_1[mtrc][
+                "95_confidence_interval"], ],
+            ["Transformer v1.2", data_v1_2[mtrc]["iqr"], data_v1_2[mtrc]["cv"], data_v1_2[mtrc][
+                "95_confidence_interval"], ],
+            ["Transformer v1.3", data_v1_3[mtrc]["iqr"], data_v1_3[mtrc]["cv"], data_v1_3[mtrc][
+                "95_confidence_interval"], ],
+            ["Transformer v1.4", data_v1_4[mtrc]["iqr"], data_v1_4[mtrc]["cv"], data_v1_4[mtrc][
+                "95_confidence_interval"], ],
+            ["Transformer v1.5", data_v1_5[mtrc]["iqr"], data_v1_5[mtrc]["cv"], data_v1_5[mtrc][
+                "95_confidence_interval"], ]
+        ]
+        pdf.create_table(table_data=data)
+        pdf.ln()
+        pdf.ln()
+    pdf.output('transformers_v1_statistical_metrics.pdf')
