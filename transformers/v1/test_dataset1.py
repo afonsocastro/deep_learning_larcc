@@ -3,14 +3,12 @@
 import keras
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
-
-from larcc_interface.larcc_classes.documentation.PDF import PDF
+from deep_learning_larcc.config.PDF import PDF
 from deep_learning_larcc.utils import plot_confusion_matrix_percentage, simple_metrics_calc, \
     prediction_classification_absolute
 from sklearn.metrics import ConfusionMatrixDisplay
-from larcc_interface.config.definitions import ROOT_DIR
 import numpy as np
-
+from deep_learning_larcc.config.definitions import ROOT_DIR
 
 if __name__ == '__main__':
     labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
