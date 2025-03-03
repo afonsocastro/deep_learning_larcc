@@ -32,6 +32,7 @@ if __name__ == '__main__':
             prediction = lstm_model.predict(x=x_test[i:i+1, sw:sw+sliding_window, :, :], verbose=2)
             sample_pred.append(prediction)
 
+
         pred_lstm.append(sample_pred)
 
     pred_lstm = np.array(pred_lstm)
