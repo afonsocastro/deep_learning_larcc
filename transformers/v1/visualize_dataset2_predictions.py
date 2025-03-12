@@ -36,7 +36,7 @@ if __name__ == '__main__':
     version = "v1_4"
     model_name = "transformer_" + version
 
-    pred_transformer = load(version + "/data2_pred_lstm_" + version + ".npy")
+    pred_transformer = load(version + "/data2_pred_transformer_" + version + ".npy")
     y_test = np.load("../../haptic_data/data2/y_test_data.npy")
 
     times = np.array([i for i in range(19, 100)])
@@ -48,10 +48,10 @@ if __name__ == '__main__':
         # LSTM GRAPH
         pull_transformer, push_transformer, shake_transformer, twist_transformer = value_for_array(pred_transformer, n, 81)
 
-        df11 = pd.DataFrame({'timestep': times, 'pull_cnn': pull_transformer})
-        df22 = pd.DataFrame({'timestep': times, 'push_cnn': push_transformer})
-        df33 = pd.DataFrame({'timestep': times, 'shake_cnn': shake_transformer})
-        df44 = pd.DataFrame({'timestep': times, 'twist_cnn': twist_transformer})
+        df11 = pd.DataFrame({'timestep': times, 'pull_transformer': pull_transformer})
+        df22 = pd.DataFrame({'timestep': times, 'push_transformer': push_transformer})
+        df33 = pd.DataFrame({'timestep': times, 'shake_transformer': shake_transformer})
+        df44 = pd.DataFrame({'timestep': times, 'twist_transformer': twist_transformer})
 
         plt.plot(df11.timestep, df11.pull_transformer, color="blue", label='pull', linewidth=3)
         plt.plot(df22.timestep, df22.push_transformer, color='red', label='push', linewidth=3)
@@ -63,7 +63,7 @@ if __name__ == '__main__':
 
         results_true = string_result(y_test[n])
         plt.title('Transformer ' + version + ' output confidences/timestep. True Expected: ' + results_true[0] + ' and ' + results_true[1])
-        plt.title("Ground Truth:    " + results_true[0] + '  -->  ' + results_true[1], fontdict={"fontsize": 16, "fontweight": "bold"})
+        plt.title("Ground Truth: " + results_true[0] + '  -->  ' + results_true[1] + ' (sample '+ str(n) +')', fontdict={"fontsize": 16, "fontweight": "bold"})
         plt.xlabel('timestep')
         plt.ylabel('Confidence')
         plt.legend()

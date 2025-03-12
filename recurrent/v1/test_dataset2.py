@@ -19,7 +19,7 @@ if __name__ == '__main__':
     x_test = x_test[:, :, 1:, :]
     # y_test = np.load("../../haptic_data/data2/y_test_data.npy")
 
-    version = "v1_0"
+    version = "v1_5"
     model_name = "lstm_" + version
     lstm_model = keras.models.load_model(version + "/lstm_" + version + ".keras")
 

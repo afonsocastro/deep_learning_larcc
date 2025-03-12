@@ -31,10 +31,9 @@ def create_convolutional_nn(input):
 
 if __name__ == '__main__':
 
-    time_window = 2
     labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
     n_labels = len(labels)
-    input_nn = time_window * 10
+    input_nn = 20
     validation_split = 0.3
 
     training_data = np.load(ROOT_DIR + "/data_storage/data1/global_normalized_train_data_20ms.npy")

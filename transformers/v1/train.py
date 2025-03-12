@@ -6,10 +6,9 @@ from matplotlib import pyplot as plt
 from tensorflow.keras.utils import plot_model
 
 from tensorflow.keras.utils import to_categorical  # one-hot encode target column
-from larcc_interface.config.definitions import ROOT_DIR
 import numpy as np
 
-from deep_learning_larcc.transformers.v1.create_models import (create_transformer_v1_4, create_transformer_v1_5)
+from deep_learning_larcc.transformers.v1.create_models import (create_transformer_v1_0, create_transformer_v1_1, create_transformer_v1_2, create_transformer_v1_3, create_transformer_v1_4, create_transformer_v1_5)
 
 if __name__ == '__main__':
 
@@ -18,7 +17,7 @@ if __name__ == '__main__':
     n_labels = len(labels)
     validation_split = 0.3
 
-    training_data = np.load(ROOT_DIR + "/data_storage/data1/global_normalized_train_data_20ms.npy")
+    training_data = np.load("../../haptic_data/data1/global_normalized_train_data_20ms.npy")
     x_train = np.reshape(training_data[:, :-1], (training_data.shape[0], time_steps, 13))
     y_train = to_categorical(training_data[:, -1])
 
@@ -30,7 +29,7 @@ if __name__ == '__main__':
     print("y_train")
     print(y_train)
 
-    model, model_name = create_transformer_v1_5()
+    model, model_name = create_transformer_v1_0()
 
     # loss = "sparse_categorical_crossentropy", optimizer = keras.optimizers.Adam(learning_rate=1e-4), loss="binary_crossentropy"
     model.compile(optimizer=Adam(learning_rate=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])

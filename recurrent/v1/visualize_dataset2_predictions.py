@@ -33,7 +33,7 @@ def string_result(true):
 
 
 if __name__ == '__main__':
-    version = "v1_4"
+    version = "v1_0"
     model_name = "lstm_" + version
 
     pred_lstm = load(version + "/data2_pred_lstm_" + version + ".npy")

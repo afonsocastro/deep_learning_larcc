@@ -13,16 +13,13 @@ if __name__ == '__main__':
     labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
     n_labels = len(labels)
 
-    print("time_steps-sliding_window+1")
-    print(time_steps-sliding_window+1)
-
     x_test = np.load("../../haptic_data/data2/x_test_data.npy")
     # n_test = x_test.shape[0]
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], x_test.shape[2], 1))
     x_test = x_test[:, :, 1:, :]
     # y_test = np.load("../../haptic_data/data2/y_test_data.npy")
 
-    version = "v1_4"
+    version = "v1_5"
     model_name = "transformer_" + version
     transformer_model = keras.models.load_model(version + "/transformer_" + version + ".keras")
 

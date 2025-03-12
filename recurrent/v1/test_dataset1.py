@@ -4,7 +4,7 @@ import keras
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
 
-from larcc_interface.larcc_classes.documentation.PDF import PDF
+from deep_learning_larcc.config.PDF import PDF
 from deep_learning_larcc.utils import plot_confusion_matrix_percentage, simple_metrics_calc, \
     prediction_classification_absolute
 from sklearn.metrics import ConfusionMatrixDisplay
