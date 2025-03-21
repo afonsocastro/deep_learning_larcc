@@ -16,25 +16,25 @@ if __name__ == '__main__':
     x_test = x_test[:, :, 1:-1, :]
     y_test = x_test[:, :, -1, :]
 
-    version = "v1_2"
-    model_name = "lstm_" + version
-    lstm_model = keras.models.load_model(version + "/lstm_" + version + ".keras")
+    version = "v1_1"
+    model_name = "cnn_" + version
+    cnn_model = keras.models.load_model(version + "/cnn_" + version + ".keras")
 
-    # LSTM TESTING
-    pred_lstm = []
+    # CNN TESTING
+    pred_cnn = []
     for i in progressbar(range(len(x_test)), redirect_stdout=True):
         sample_pred = []
         for sw in range(0, time_steps-sliding_window+1):
-            prediction = lstm_model.predict(x=x_test[i:i+1, sw:sw+sliding_window, :, :], verbose=2)
+            prediction = cnn_model.predict(x=x_test[i:i+1, sw:sw+sliding_window, :, :], verbose=2)
             sample_pred.append(prediction)
 
-        pred_lstm.append(sample_pred)
+        pred_cnn.append(sample_pred)
 
-    pred_lstm = np.array(pred_lstm)
+    pred_cnn = np.array(pred_cnn)
     print("\n")
-    print("pred_lstm.shape")
-    print(pred_lstm.shape)
+    print("pred_cnn.shape")
+    print(pred_cnn.shape)
     print("\n")
-    pred_lstm = np.reshape(pred_lstm, (pred_lstm.shape[0], pred_lstm.shape[1], pred_lstm.shape[3]))
+    pred_cnn = np.reshape(pred_cnn, (pred_cnn.shape[0], pred_cnn.shape[1], pred_cnn.shape[3]))
 
-    save(version + "/data3_pred_lstm_" + version + ".npy", pred_lstm)
+    save(version + "/data3_pred_cnn_" + version + ".npy", pred_cnn)

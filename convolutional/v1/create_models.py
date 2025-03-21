@@ -40,7 +40,7 @@ def create_cnn_v1_2():
 
 def create_cnn_v1_3():
     modelo = Sequential()
-    modelo.add(Conv2D(64, kernel_size=(5, 1), activation="relu", input_shape=(50, 12, 1)))
+    modelo.add(Conv2D(64, kernel_size=(5, 1), activation="relu", input_shape=(20, 12, 1)))
     modelo.add(MaxPooling2D((2, 1)))
 
     modelo.add(Conv2D(32, kernel_size=(2, 1), activation="relu"))

@@ -26,7 +26,7 @@ if __name__ == '__main__':
         y_train = to_categorical(training_data[:, -1])
         x_train = x_train[:, :, 1:]
 
-        model, model_name = create_cnn_v1_1()
+        model, model_name = create_cnn_v1_3()
 
         model.compile(optimizer=Adam(learning_rate=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
         model.summary()
