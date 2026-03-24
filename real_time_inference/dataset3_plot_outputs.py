@@ -37,9 +37,9 @@ if __name__ == '__main__':
     models = ["cnn", "lstm", "transformer"]
     predictions = {}
     for model, version in zip(models, models_versions):
-        predictions[model] = load("dataset3_results/data3_pred_" + model + version + ".npy")
+        predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
 
-    data = np.load("../haptic_data/data3/global_normalized_data.npy")
+    data = np.load("../haptic_data/data3_old/global_normalized_data.npy")
     y_labels = data[:, :, -1]
 
     plot_times = np.array([i for i in range(19, time_steps)])
@@ -75,4 +75,4 @@ if __name__ == '__main__':
         plt.xlabel("Timesteps")
         plt.tight_layout()
         # plt.show()
-        plt.savefig("dataset3_results/sample_"+str(sample)+".png", bbox_inches='tight')
+        plt.savefig("dataset3_old_results/sample_"+str(sample)+".png", bbox_inches='tight')

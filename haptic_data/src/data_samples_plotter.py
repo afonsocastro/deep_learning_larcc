@@ -18,7 +18,7 @@ class DataVisualizer:
     # def __init__(self, file=ROOT_DIR + "/data_storage/data1/raw_learning_data.npy"):
     # def __init__(self, file=ROOT_DIR + "/data_storage/data2/x_test_global_normalized_data.npy"):
     # def __init__(self, file=ROOT_DIR + "/data_storage/data2/x_test_raw_data.npy"):
-    def __init__(self, file=ROOT_DIR + "/data_storage/data3/raw_learning_data.npy"):
+    def __init__(self, file=ROOT_DIR + "/data_storage/data3_old/raw_learning_data.npy"):
 
         self.dataset = 3
 

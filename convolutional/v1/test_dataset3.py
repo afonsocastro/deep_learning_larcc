@@ -9,20 +9,19 @@ import numpy as np
 if __name__ == '__main__':
 
     sliding_window = 20
-    time_steps = 6000
+    time_steps = 350
+    labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
+    n_labels = len(labels)
 
-    x_test = np.load("../../haptic_data/data3/global_normalized_data.npy")
-    x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], x_test.shape[2], 1))
-    x_test = x_test[:, :, 1:-1, :]
-    y_test = x_test[:, :, -1, :]
-
+    x_test = np.load("../../haptic_data/data3/x_test_data.npy")
     version = "v1_1"
     model_name = "cnn_" + version
     cnn_model = keras.models.load_model(version + "/cnn_" + version + ".keras")
 
-    # CNN TESTING
+    # cnn TESTING
     pred_cnn = []
     for i in progressbar(range(len(x_test)), redirect_stdout=True):
+    # for i in range(0, len(x_test_cnn)):
         sample_pred = []
         for sw in range(0, time_steps-sliding_window+1):
             prediction = cnn_model.predict(x=x_test[i:i+1, sw:sw+sliding_window, :, :], verbose=2)

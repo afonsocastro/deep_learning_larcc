@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     cnn_model = keras.models.load_model("cnn4_model_20ms")
 
-    test_data = np.load(ROOT_DIR + "/data_storage/data3/global_normalized_data.npy")
+    test_data = np.load(ROOT_DIR + "/data_storage/data3_old/global_normalized_data.npy")
     n_test = test_data.shape[0]
 
     x_test_cnn = np.reshape(test_data[:, :, :-1], (int(n_test), time_steps, 13, 1))

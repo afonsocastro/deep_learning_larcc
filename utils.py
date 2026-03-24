@@ -67,6 +67,15 @@ class NumpyArrayEncoder(JSONEncoder):
         return JSONEncoder.default(self, obj)
 
 
+# Custom encoder for NumPy types
+class NumpyArrayEncoderNumPy(JSONEncoder):
+    def default(self, obj):
+        # Handle NumPy scalar types (e.g., float32, int32)
+        if isinstance(obj, np.generic):
+            return obj.item()  # Convert to native Python type (e.g., float, int)
+        return super().default(obj)
+
+
 # Print iterations progress
 def printProgressBar(iteration, total, prefix='', suffix='', decimals=1, length=100, fill='█', printEnd="\r"):
     """

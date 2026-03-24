@@ -46,7 +46,7 @@ if __name__ == '__main__':
     f = open('../config/data_storage_config.json')
     storage_config = json.load(f)
     f.close()
-    time_idx = 5
+    time_idx = 1
     f = open('../config/training_config_time_'+str(time_idx)+'.json')
     training_config = json.load(f)
     f.close()
@@ -83,7 +83,7 @@ if __name__ == '__main__':
         train_data_shortened = sample_shortener(raw_training_data, measurements, storage_config, new_measurements)
         test_data_shortened = sample_shortener(raw_test_data, measurements, storage_config, new_measurements)
         print("Time truncation complete...")
-        measurements = new_measurements
+        measurements = int(new_measurements)
 
     np.random.shuffle(test_data_shortened)
     np.random.shuffle(train_data_shortened)

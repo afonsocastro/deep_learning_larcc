@@ -61,9 +61,9 @@ if __name__ == '__main__':
     models = ["cnn", "lstm", "transformer"]
     predictions = {}
     for model, version in zip(models, models_versions):
-        predictions[model] = load("dataset3_results/data3_pred_" + model + version + ".npy")
+        predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
 
-    data = np.load("../haptic_data/data3/global_normalized_data.npy")
+    data = np.load("../haptic_data/data3_old/global_normalized_data.npy")
     y_labels = data[:, :, -1]
     times = np.array([i for i in range(19, time_steps)])
     mean_data = []
