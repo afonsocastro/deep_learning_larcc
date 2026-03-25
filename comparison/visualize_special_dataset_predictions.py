@@ -33,22 +33,24 @@ def plot_true_shadow(ts, t, a):
 
 
 if __name__ == '__main__':
-    time_steps = 350
+    time_steps = 1500
     sliding_window = 20
-    models_versions = ["_v1_1", "_v1_2", "_v1_1"]
-    models = ["cnn", "lstm", "transformer"]
+    # models_versions = ["_v1_1", "_v1_2", "_v1_1"]
+    models_versions = ["_v1_1"]
+    # models = ["cnn", "lstm", "transformer"]
+    models = ["cnn"]
     predictions = {}
     for model, version in zip(models, models_versions):
         predictions[model] = load("dataset3_pred/data3_pred_" + model + version + ".npy")
         # predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
 
-    y_data = np.load("../haptic_data/data3/y_test_data.npy")
-    y_labels = np.repeat(y_data, 50, axis=1)
-    print("\ny_labels.shape")
-    print(y_labels.shape)
+    # y_data = np.load("../haptic_data/data3/y_test_data.npy")
+    # y_labels = np.repeat(y_data, 50, axis=1)
+    # print("\ny_labels.shape")
+    # print(y_labels.shape)
 
-    # data = np.load("../haptic_data/data3_old/global_normalized_data.npy")
-    # y_labels = data[:, :, -1]
+    data = np.load("../haptic_data/full_timewindow/data/normalized_data_15s.npy")
+    y_labels = data[:, :, -1]
 
     plot_times = np.array([i for i in range(19, time_steps)])
     real_times = np.array([i for i in range(0, time_steps)])
@@ -76,14 +78,18 @@ if __name__ == '__main__':
 
         plot_true_shadow(real_times, true_labels, axes[0])
         axes[0].set_ylabel("Ground\nTruth")
-        axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 113')
+        axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 9')
 
-        for ax, model in zip(axes[1:], models):
-            df = graph_data[model]  # Get data for the current model
+        colors = {"pull": "blue", "push": "red", "shake": "green", "twist": "orange"}
+
+        # for ax, model in zip(axes[1:], models):
+            # df = graph_data[model]  # Get data for the current model
             # plot_true_shadow(real_times, true_labels, ax)
-            for movement, color in zip(["pull", "push", "shake", "twist"], ["blue", "red", "green", "orange"]):
-                ax.plot(df[movement]["timestep"], df[movement][movement], color = color, linewidth=2, label=movement)
-
+            # for movement, color in zip(["pull", "push", "shake", "twist"], ["blue", "red", "green", "orange"]):
+                # ax.plot(df[movement]["timestep"], df[movement][movement], color = color, linewidth=2, label=movement)
+        for ax, model in zip(axes[1:], models):
+            for movement, movement_df in graph_data[model].items():
+                ax.plot(movement_df["timestep"].values, movement_df[movement].values, color=colors[movement], linewidth=2, label=movement)
             # Regra para inicio de transicao
             # if model == "cnn":
             #     for i in range(19, 481):
@@ -91,8 +97,8 @@ if __name__ == '__main__':
             #             ax.axvspan(i+19-1, i+19, color="grey", alpha=0.4, lw=0)
 
             # Add the vertical line to the plot
-            for i in range(1,7):
-                ax.axvline(x=50 * i, linestyle="--")
+            # for i in range(1,7):
+              #  ax.axvline(x=50 * i, linestyle="--")
 
             if model == "cnn":
                 ax.set_ylabel("CONVOLUTIONAL", fontsize=12, fontweight="bold")
@@ -104,5 +110,5 @@ if __name__ == '__main__':
 
         plt.xlabel("Timesteps")
         plt.tight_layout()
-        plt.show()
-        # plt.savefig("dataset3_pred/sample_"+str(sample)+".png", bbox_inches='tight')
+        # plt.show()
+        plt.savefig("dataset3_pred/sample_"+str(sample)+".png", bbox_inches='tight')

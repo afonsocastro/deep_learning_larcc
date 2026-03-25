@@ -59,5 +59,5 @@ if __name__ == '__main__':
             cont += 1
 
     print(clusters_max)
-    with open("clusters_max_min.json", "w") as fp:
+    with open("../config/clusters_max_min.json", "w") as fp:
         json.dump(clusters_max, fp)

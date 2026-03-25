@@ -10,6 +10,7 @@ from keras.layers import Dense, LSTM, Layer
 import numpy as np
 from keras.layers import Lambda
 from keras import backend as K
+import json
 
 
 def plot_confusion_matrix_percentage(confusion_matrix, display_labels=None, cmap="viridis",
@@ -352,3 +353,96 @@ def training_encoder_decoder(out_dim, input_params, out_labels, start_n, batch_s
     model.compile(optimizer='rmsprop', loss='categorical_crossentropy', metrics=['accuracy'], run_eagerly=True)
 
     return model
+
+def npy_to_dat(npy_file):
+    data = npy_file[:, :-1]
+
+    time_max_prev = 0
+
+    time = []
+
+    fx = []
+    fy = []
+    fz = []
+
+    mx = []
+    my = []
+    mz = []
+
+    j0 = []
+    j1 = []
+    j2 = []
+    j3 = []
+    j4 = []
+    j5 = []
+
+    time_divisions = []
+
+    i = 164
+    # for i in range(data.shape[0]):
+
+    data_vector = data[i, :]
+    data_array = np.reshape(data_vector, (50, int(len(data_vector) / 50)))
+    print(i)
+
+    new_time = data_array[:, 0] + [time_max_prev] * 50
+
+    time.extend(new_time)
+
+    time_max_prev = time[-1]
+    time_divisions.append(time_max_prev)
+
+    j0.extend(data_array[:, 1])
+    j1.extend(data_array[:, 2])
+    j2.extend(data_array[:, 3])
+    j3.extend(data_array[:, 4])
+    j4.extend(data_array[:, 5])
+    j5.extend(data_array[:, 6])
+
+    fx.extend(data_array[:, 7])
+    fy.extend(data_array[:, 8])
+    fz.extend(data_array[:, 9])
+
+    mx.extend(data_array[:, 10])
+    my.extend(data_array[:, 11])
+    mz.extend(data_array[:, 12])
+
+    print(time_divisions)
+
+    np.savetxt('fx_normal.dat', np.column_stack((time, fx)), fmt=['%.3f', '%.3f'])
+    np.savetxt('fy_normal.dat', np.column_stack((time, fy)), fmt=['%.3f', '%.3f'])
+    np.savetxt('fz_normal.dat', np.column_stack((time, fz)), fmt=['%.3f', '%.3f'])
+
+    np.savetxt('mx_normal.dat', np.column_stack((time, mx)), fmt=['%.3f', '%.3f'])
+    np.savetxt('my_normal.dat', np.column_stack((time, my)), fmt=['%.3f', '%.3f'])
+    np.savetxt('mz_normal.dat', np.column_stack((time, mz)), fmt=['%.3f', '%.3f'])
+
+    np.savetxt('j1_normal.dat', np.column_stack((time, j0)), fmt=['%.3f', '%.3f'])
+    np.savetxt('j2_normal.dat', np.column_stack((time, j1)), fmt=['%.3f', '%.3f'])
+    np.savetxt('j3_normal.dat', np.column_stack((time, j2)), fmt=['%.3f', '%.3f'])
+    np.savetxt('j4_normal.dat', np.column_stack((time, j3)), fmt=['%.3f', '%.3f'])
+    np.savetxt('j5_normal.dat', np.column_stack((time, j4)), fmt=['%.3f', '%.3f'])
+    np.savetxt('j6_normal.dat', np.column_stack((time, j5)), fmt=['%.3f', '%.3f'])
+
+def count_dicts_in_list(json_file):
+    with open(json_file, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    if isinstance(data, list):
+        return len(data)
+    else:
+        return 0
+
+
+def get_last_element_cm(json_file):
+    with open(json_file, 'r', encoding='utf-8') as file:
+        data = json.load(file)
+
+    if isinstance(data, list) and data:
+        last_element = data[-1]
+        test_dict = last_element.get("test", {})
+        cm_value = test_dict.get("cm", "Key not found")
+        return test_dict, cm_value
+    else:
+        return {}, "List is empty or invalid"
+

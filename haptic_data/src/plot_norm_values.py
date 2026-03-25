@@ -8,17 +8,20 @@ from matplotlib import pyplot as plt
 
 if __name__ == '__main__':
 
-    f = open(ROOT_DIR + '/data_storage/src/clusters_max_min.json')
+    f = open(ROOT_DIR + '/haptic_data/config/clusters_max_min.json')
     clusters_max_min = json.load(f)
     f.close()
 
-    f = open(ROOT_DIR + '/data_storage/config/training_config.json')
+    f = open(ROOT_DIR + '/haptic_data/config/training_config.json')
     training_config = json.load(f)
     f.close()
 
-    measurements = int(training_config["rate"] * training_config["time"])
+    measurements = int(training_config["rate"] * 0.5)
 
-    experiment_data = np.load(ROOT_DIR + "/data_storage/data/raw_learning_data/raw_learning_data.npy")
+    # experiment_data = np.load(ROOT_DIR + "/haptic_data/user_splitted_raw_data/Ali_learning_data_9.npy")
+    # experiment_data = np.load(ROOT_DIR + "/haptic_data/user_splitted_raw_data/Ine_learning_data_8.npy")
+    # experiment_data = np.load(ROOT_DIR + "/haptic_data/user_splitted_raw_data/Mig_learning_data_10.npy")
+    experiment_data = np.load(ROOT_DIR + "/haptic_data/user_splitted_raw_data/Joe_learning_data_11.npy")
 
     learning_array = experiment_data[:, :-1]
 

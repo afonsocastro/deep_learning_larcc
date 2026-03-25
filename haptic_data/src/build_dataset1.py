@@ -33,7 +33,7 @@ def sample_shortener(array, old_measurements, store_config, new_measurements):
 
 if __name__ == '__main__':
 
-    f = open('clusters_max_min.json')
+    f = open('../config/clusters_max_min.json')
     clusters_max_min = json.load(f)
     f.close()
 
@@ -128,4 +128,4 @@ if __name__ == '__main__':
         array_norm = np.append(array_norm, vector_data_norm, axis=0)
 
     array_norm = np.append(array_norm, np.reshape([y_test], (-1, 1)), axis=1)
-    np.save("../data1/global_normalized_test_data_"+ str(time_idx) +"00ms.npy", array_norm)
+    np.save("../data1/normalized_test_data_"+ str(time_idx) +"00ms.npy", array_norm)

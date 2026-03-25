@@ -10,6 +10,7 @@ from matplotlib import pyplot as plt
 from matplotlib.widgets import Button
 import math
 
+# from config.definitions import ROOT_DIR
 from config.definitions import ROOT_DIR
 
 
@@ -18,9 +19,9 @@ class DataVisualizer:
     # def __init__(self, file=ROOT_DIR + "/data_storage/data1/raw_learning_data.npy"):
     # def __init__(self, file=ROOT_DIR + "/data_storage/data2/x_test_global_normalized_data.npy"):
     # def __init__(self, file=ROOT_DIR + "/data_storage/data2/x_test_raw_data.npy"):
-    def __init__(self, file=ROOT_DIR + "/data_storage/data3_old/raw_learning_data.npy"):
+    def __init__(self, file=ROOT_DIR + "/haptic_data/data1/500ms/normalized_train_data_500ms.npy"):
 
-        self.dataset = 3
+        self.dataset = 1
 
         if self.dataset == 2:
             self.measurements = 20
@@ -122,16 +123,18 @@ class DataVisualizer:
             ax.cla()
             ax.grid()
 
-        data_vector = self.data[self.idx, :, :]
+        # data_vector = self.data[self.idx, :, :]
+
 
         if self.dataset == 1:
+            data_vector = self.data[self.idx, :-1]
             data_array = np.reshape(data_vector, (self.measurements, int(len(data_vector) / self.measurements)))
-        elif self.dataset == 2:
-            for t in range(50, 100):
-                data_vector[t, 0] += + 0.5
-            data_array = data_vector
-        elif self.dataset == 3:
-            data_array = data_vector[:, :-1]
+        # elif self.dataset == 2:
+        #     for t in range(50, 100):
+        #         data_vector[t, 0] += + 0.5
+        #     data_array = data_vector
+        # elif self.dataset == 3:
+        #     data_array = data_vector[:, :-1]
 
         graph_color = ["-r", "-g", "-b", "-y", "-k", "-m", "-r", "-g", "-b", "-r", "-g", "-b"]
 

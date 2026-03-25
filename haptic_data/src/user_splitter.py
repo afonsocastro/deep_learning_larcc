@@ -26,10 +26,9 @@ def print_stats(u, array, actions):
 
 if __name__ == '__main__':
 
-    # raw_data = np.load(ROOT_DIR + "/data_storage/data/raw_learning_data/raw_learning_data.npy")
-    raw_data = np.load(ROOT_DIR + "/data_storage/data/universal_norm/normalized_data.npy")
+    raw_data = np.load(ROOT_DIR + "/data_storage/data/new_acquisition/raw_learning_data.npy")
 
-    f = open(ROOT_DIR + '/data_storage/config/user_split.json')
+    f = open(ROOT_DIR + '/data_storage/config/user_split_new.json')
 
     split_config = json.load(f)
 
@@ -38,7 +37,7 @@ if __name__ == '__main__':
     dic_of_matrixs = {}
 
     for i in range(0, len(split_config["users"])):
-        dic_of_matrixs[f"{i}"] = np.empty((0, raw_data.shape[1]))
+        dic_of_matrixs[f"{i+6}"] = np.empty((0, raw_data.shape[1]))
 
     idx_start = 0
     for j, user in enumerate(split_config["user_order"]):
@@ -50,10 +49,10 @@ if __name__ == '__main__':
 
     users = split_config["users"]
     for idx in dic_of_matrixs:
-        np.save(ROOT_DIR + f"/data_storage/data/universal_norm/user_splitted_data/"
-                           f"{users[int(idx)]}_data_{int(idx)}.npy", dic_of_matrixs[idx])
+        np.save(ROOT_DIR + f"/data_storage/data/new_acquisition/user_splitted_data/"
+                           f"{users[int(idx)-6]}_learning_data_{int(idx)}.npy", dic_of_matrixs[idx])
 
-        print_stats(users[int(idx)], dic_of_matrixs[idx], split_config["actions"])
+        print_stats(users[int(idx)-6], dic_of_matrixs[idx], split_config["actions"])
 
 
 

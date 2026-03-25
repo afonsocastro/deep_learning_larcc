@@ -237,7 +237,7 @@ def grouping_segments(categories_list, delay):
 #     return predicted_segments
 
 
-def plot_predicted_transition_shadow(ts, entropy_combined_mean, predictions, sample, a):
+def plot_predicted_transition_shadow(ts, models, entropy_combined_mean, predictions, sample, a):
     last = len(ts) #6000
     first_that_count = last - len(entropy_combined_mean) #19
     start = first_that_count
@@ -248,7 +248,11 @@ def plot_predicted_transition_shadow(ts, entropy_combined_mean, predictions, sam
     predicted_sequence = []
     switch_color_case = { "blue": 0, "red": 1, "green": 2, "orange": 3, "grey": 4}
     for i in ts[first_that_count:]:
-        if entropy_combined_mean[i-first_that_count] > 1:
+        print("\ni")
+        print(i)
+        print("entropy_combined_mean[i-first_that_count]")
+        print(entropy_combined_mean[i-first_that_count])
+        if entropy_combined_mean[i-first_that_count] > 1.5:
             end = i
             color = "grey"
             alpha = 0.9
@@ -259,7 +263,7 @@ def plot_predicted_transition_shadow(ts, entropy_combined_mean, predictions, sam
             shake_pred = 0
             twist_pred = 0
             weight = 1
-            for model in ["cnn", "lstm", "transformer"]:
+            for model in models:
                 # if model == "cnn":
                 #     weight = 0.6
                 # elif model == "transformer":
@@ -350,20 +354,28 @@ def conditional_mean(entropy_cnn, entropy_lstm, entropy_transformer):
 
 if __name__ == '__main__':
 
-    time_steps = 6000
+    time_steps = 1500
     sliding_window = 20
     entropy_epsilon = 0.05
-    models_versions = ["_v1_1", "_v1_2", "_v1_1"]
-    models = ["cnn", "lstm", "transformer"]
+    # models_versions = ["_v1_1", "_v1_2", "_v1_1"]
+    models_versions = ["_v1_1"]
+    # models = ["cnn", "lstm", "transformer"]
+    models = ["cnn"]
     predictions = {}
     t = PrettyTable(['Sample', 'Acc', 'Prec', 'Rec', 'F1', 'Ghost' , 'extra bad', 'Corr', 'Exp', 'Delay', 'Duration'])
     final_table_list = []
-    remove_idx = [2, 7, 11, 14, 15, 17]
+    # remove_idx = [2, 7, 11, 14, 15, 17]
+    remove_idx = [1, 6]
     for model, version in zip(models, models_versions):
-        predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
+        # predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
+        predictions[model] = load("dataset3_pred/data3_pred_" + model + version + ".npy")
         predictions[model] = np.delete(predictions[model], remove_idx, axis=0)
 
-    y_data = np.load("../haptic_data/data3_old/global_normalized_data.npy")
+    # y_data = np.load("../haptic_data/data3_old/global_normalized_data.npy")
+
+    # y_labels = y_data[:, :, -1]
+
+    y_data = np.load("../haptic_data/full_timewindow/data/normalized_data_15s.npy")
     y_data = np.delete(y_data, remove_idx, axis=0)
     y_labels = y_data[:, :, -1]
 
@@ -415,8 +427,9 @@ if __name__ == '__main__':
                 gap_transformer = gap
 
 
-        entropy_w_sum = conditional_mean(entropy_cnn, entropy_lstm, entropy_transformer)
-        entropy_mean = (entropy_cnn + entropy_lstm + entropy_transformer) / 3
+        # entropy_w_sum = conditional_mean(entropy_cnn, entropy_lstm, entropy_transformer)
+        # entropy_mean = (entropy_cnn + entropy_lstm + entropy_transformer) / 3
+        entropy_mean = entropy_cnn
         # gap_mean = (gap_cnn + gap_transformer) / 2
 
         # first_derivative_gap = np.diff(gap_mean)
@@ -427,15 +440,17 @@ if __name__ == '__main__':
         # predicted_sequence = plot_predicted_transition_shadow(real_times, entropy_cnn, predictions, sample, axes[1]) #CNN solo
         # predicted_sequence = plot_predicted_transition_shadow(real_times, entropy_lstm, predictions, sample, axes[1]) #LSTM solo
         # predicted_sequence = plot_predicted_transition_shadow(real_times, entropy_transformer, predictions, sample, axes[1]) #Transformer solo
-        predicted_sequence = plot_predicted_transition_shadow(real_times, entropy_mean, predictions, sample, axes[1]) #3 models combined solo
+        predicted_sequence = plot_predicted_transition_shadow(real_times, models, entropy_mean, predictions, sample, axes[1]) #3 models combined solo
         # predicted_sequence = plot_predicted_transition_shadow(real_times, entropy_w_sum, predictions, sample, axes[1]) #proposed ensemble
 
         ground_truth_sequence = grouping_segments(true_labels, delay=0)
-        # print("predicted_sequence")
-        # print(predicted_sequence)
+        print("\npredicted_sequence")
+        print(predicted_sequence)
         real_transitions = [(start, end-start) for label, start, end in predicted_sequence if label == 4]
-        # print("ground_truth_sequence")
-        # print(ground_truth_sequence)
+        print("ground_truth_sequence")
+        print(ground_truth_sequence)
+
+        # exit(0)
 
         metrics = compute_segment_metrics(ground_truth_sequence, predicted_sequence )
         # print("\nmetrics")
@@ -449,7 +464,7 @@ if __name__ == '__main__':
 
 
         axes[0].set_ylabel("Ground\nTruth")
-        axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 17')
+        axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 9')
         exp, corr, ghost, extra_bad, sdel, sdur = computing_transient_metrics(expected_transitions, real_transitions)
 
         total_expected_transitions += exp

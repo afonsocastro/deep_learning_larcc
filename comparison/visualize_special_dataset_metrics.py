@@ -105,7 +105,7 @@ def grouping_segments(categories_list, delay):
     predicted_segments.append((int(current_label), start_idx + delay, len(categories_list) - 1 + delay))
     return predicted_segments
 
-def plot_predicted_transition_shadow(ts, second_derivative_gap, predictions, sample, a):
+def plot_predicted_transition_shadow(ts, models, second_derivative_gap, predictions, sample, a):
     last = len(ts) #350
     first_that_count = last - len(second_derivative_gap) #21
     start = first_that_count
@@ -116,7 +116,8 @@ def plot_predicted_transition_shadow(ts, second_derivative_gap, predictions, sam
     switch_color_case = { "blue": 0, "red": 1, "green": 2, "orange": 3, "grey": 4}
     for i in ts[first_that_count+10:]:
         std_dev = np.std(second_derivative_gap[i-first_that_count-10:i-first_that_count])
-        if std_dev > 0.05:
+        # if std_dev > 0.05:
+        if std_dev > 0.3:
             end = i
             color = "grey"
             alpha = 0.9
@@ -126,7 +127,7 @@ def plot_predicted_transition_shadow(ts, second_derivative_gap, predictions, sam
             push_pred = 0
             shake_pred = 0
             twist_pred = 0
-            for model in ["cnn", "lstm", "transformer"]:
+            for model in models:
                 pull_pred += predictions[model][sample][i-first_that_count][0]
                 push_pred += predictions[model][sample][i-first_that_count][1]
                 shake_pred += predictions[model][sample][i-first_that_count][2]
@@ -177,19 +178,23 @@ def plot_predicted_transition_shadow(ts, second_derivative_gap, predictions, sam
 
 
 if __name__ == '__main__':
-    time_steps = 350
-    n_samples = 7
+    time_steps = 1500
+    # n_samples = 7
     sliding_window = 20
     entropy_epsilon = 0.01
-    models_versions = ["_v1_1", "_v1_2", "_v1_1"]
-    models = ["cnn", "lstm", "transformer"]
+    # models_versions = ["_v1_1", "_v1_2", "_v1_1"]
+    models_versions = ["_v1_1"]
+    # models = ["cnn", "lstm", "transformer"]
+    models = ["cnn"]
     predictions = {}
     for model, version in zip(models, models_versions):
         predictions[model] = load("dataset3_pred/data3_pred_" + model + version + ".npy")
         # predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
 
-    y_data = np.load("../haptic_data/data3/y_test_data.npy")
-    y_labels = np.repeat(y_data, 50, axis=1)
+    # y_data = np.load("../haptic_data/data3/y_test_data.npy")
+    # y_labels = np.repeat(y_data, 50, axis=1)
+    data = np.load("../haptic_data/full_timewindow/data/normalized_data_15s.npy")
+    y_labels = data[:, :, -1]
 
     plot_times = np.array([i for i in range(19, time_steps)])
     real_times = np.array([i for i in range(0, time_steps)])
@@ -203,8 +208,8 @@ if __name__ == '__main__':
 
     accuracy = 0
 
-    for sample in range(0, len(y_labels)):
-        print("sample: " +str(sample)+"/139")
+    for sample in range(3, len(y_labels)):
+        print("sample: " +str(sample)+"/9")
         # Create figure with GridSpec for custom subplot heights
         fig = plt.figure(figsize=(16, 10))
         gs = gridspec.GridSpec(5, 1, height_ratios=[1, 1, 4, 4, 4])  # First subplot thinner
@@ -238,61 +243,66 @@ if __name__ == '__main__':
                 entropy_transformer = entropy
                 gap_transformer = gap
 
-        entropy_mean = (entropy_cnn + entropy_lstm + entropy_transformer) / 3
+        # entropy_mean = (entropy_cnn + entropy_lstm + entropy_transformer) / 3
+        entropy_mean = entropy_cnn
         # # gap_mean = (gap_cnn + gap_lstm + gap_transformer) / 3
-        gap_mean = (gap_cnn + gap_transformer) / 2
+        # gap_mean = (gap_cnn + gap_transformer) / 2
+        gap_mean = gap_cnn
         #
-        entropies = [entropy_cnn, entropy_lstm, entropy_transformer]
-        gaps = [gap_cnn, gap_lstm, gap_transformer]
+        # entropies = [entropy_cnn, entropy_lstm, entropy_transformer]
+        # gaps = [gap_cnn, gap_lstm, gap_transformer]
 
         first_derivative_gap = np.diff(gap_mean)
         second_derivative_gap = np.diff(first_derivative_gap)
         # third_derivative_gap = np.diff(second_derivative_gap)
 
         # SOLO CNN
-        predicted_sequence = plot_predicted_transition_shadow(real_times, second_derivative_gap, predictions, sample, axes[1])
+        predicted_sequence = plot_predicted_transition_shadow(real_times, models, second_derivative_gap, predictions, sample, axes[1])
         ground_truth_sequence = grouping_segments(true_labels, delay=0)
         print("predicted_sequence")
         print(predicted_sequence)
         print("ground_truth_sequence")
         print(ground_truth_sequence)
         # real_transitions, sample_accuracy = cnn_solo_results(real_times, entropies, gaps, predictions, sample, true_labels, axes[1])
+        real_transitions = [(start, end-start) for label, start, end in predicted_sequence if label == 4]
 
         expected_transitions = plot_true_shadow(real_times, true_labels, axes[0])
         axes[0].set_ylabel("Ground\nTruth")
-        axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 139')
-        # exp, corr, ghost, extra_bad, sdel, sdur = computing_transient_metrics(expected_transitions, real_transitions)
-        # total_expected_transitions += exp
-        # total_corrected_transitions += corr
-        # total_ghost_transitions += ghost
-        # total_extra_bad_transitions += extra_bad
-        # total_delay += sdel
-        # total_duration += sdur
+        axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 9')
+        exp, corr, ghost, extra_bad, sdel, sdur = computing_transient_metrics(expected_transitions, real_transitions)
+        total_expected_transitions += exp
+        total_corrected_transitions += corr
+        total_ghost_transitions += ghost
+        total_extra_bad_transitions += extra_bad
+        total_delay += sdel
+        total_duration += sdur
+
+        exit(0)
         # accuracy += sample_accuracy
         axes[1].set_ylabel("Predicted\nSequence")
 
         axes[2].plot(plot_times[2:], second_derivative_gap, color="blue", linewidth=2, label="GAP derivative")
         # axes[2].plot(plot_times[3:], third_derivative_gap, color="blue", linewidth=2, label="GAP derivative")
-        for i in range(1, n_samples):
-            axes[2].axvline(x=50 * i, linestyle="--")
+        # for i in range(1, n_samples):
+        #     axes[2].axvline(x=50 * i, linestyle="--")
         axes[2].set_ylabel("GAP derivative", fontsize=12, fontweight="bold")
         axes[2].legend()
 
         axes[3].plot(plot_times, gap_cnn, color="green", linewidth=2, label="CNN", alpha=0.2)
-        axes[3].plot(plot_times, gap_lstm, color="purple", linewidth=2, label="LSTM", alpha=0.2)
-        axes[3].plot(plot_times, gap_transformer, color="orange", linewidth=2, label="Transformer", alpha=0.2)
+        # axes[3].plot(plot_times, gap_lstm, color="purple", linewidth=2, label="LSTM", alpha=0.2)
+        # axes[3].plot(plot_times, gap_transformer, color="orange", linewidth=2, label="Transformer", alpha=0.2)
         axes[3].plot(plot_times, gap_mean, color="blue", linewidth=2, label="Mean")
-        for i in range(1, n_samples):
-            axes[3].axvline(x=50 * i, linestyle="--")
+        # for i in range(1, n_samples):
+        #     axes[3].axvline(x=50 * i, linestyle="--")
         axes[3].set_ylabel("GAP", fontsize=12, fontweight="bold")
         axes[3].legend()
 
         axes[4].plot(plot_times, entropy_cnn, color="green", linewidth=2, label="CNN", alpha=0.2)
-        axes[4].plot(plot_times, entropy_lstm, color="purple", linewidth=2, label="LSTM", alpha=0.2)
-        axes[4].plot(plot_times, entropy_transformer, color="orange", linewidth=2, label="Transformer", alpha=0.2)
+        # axes[4].plot(plot_times, entropy_lstm, color="purple", linewidth=2, label="LSTM", alpha=0.2)
+        # axes[4].plot(plot_times, entropy_transformer, color="orange", linewidth=2, label="Transformer", alpha=0.2)
         axes[4].plot(plot_times, entropy_mean, color="blue", linewidth=2, label="Mean")
-        for i in range(1, n_samples):
-            axes[4].axvline(x=50 * i, linestyle="--")
+        # for i in range(1, n_samples):
+        #     axes[4].axvline(x=50 * i, linestyle="--")
         axes[4].set_ylabel("ENTROPY", fontsize=12, fontweight="bold")
         axes[4].legend()
         plt.xlabel("Timesteps")

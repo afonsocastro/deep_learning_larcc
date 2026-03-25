@@ -73,7 +73,7 @@ def generate_balanced_pairs_with_indices(input_list):
 
 
 if __name__ == '__main__':
-    dataset1_test = np.load("../data1/global_normalized_test_data_500ms.npy")
+    dataset1_test = np.load("../data1/normalized_test_data_500ms.npy")
     y_test = dataset1_test[:, -1]
 
     print("before balanced generation....\n")
