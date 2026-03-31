@@ -41,13 +41,14 @@ if __name__ == '__main__':
     data_max_joints = abs(max(clusters_max_min["joints"]["max"], clusters_max_min["joints"]["min"], key=abs))
     data_max_gripper_F = abs(max(clusters_max_min["gripper_F"]["max"], clusters_max_min["gripper_F"]["min"], key=abs))
     data_max_gripper_M = abs(max(clusters_max_min["gripper_M"]["max"], clusters_max_min["gripper_M"]["min"], key=abs))
-
+    print("\ndata_max_gripper_M")
+    print(data_max_gripper_M)
     path = '../user_splitted_raw_data/'
     f = open('../config/data_storage_config.json')
     storage_config = json.load(f)
     f.close()
     time_idx = 1
-    f = open('../config/training_config_time_'+str(time_idx)+'.json')
+    f = open('../config/training_config.json')
     training_config = json.load(f)
     f.close()
 
@@ -110,7 +111,7 @@ if __name__ == '__main__':
         array_norm = np.append(array_norm, vector_data_norm, axis=0)
 
     array_norm = np.append(array_norm, np.reshape([y_train], (-1, 1)), axis=1)
-    np.save("../data1/global_normalized_train_data_"+ str(time_idx) +"00ms.npy", array_norm)
+    np.save("../data1/normalized_train_data_"+ str(time_idx) +"00ms.npy", array_norm)
 
     array_norm = np.empty((0, x_test.shape[1]))
 

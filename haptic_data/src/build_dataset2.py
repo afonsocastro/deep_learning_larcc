@@ -73,7 +73,7 @@ def generate_balanced_pairs_with_indices(input_list):
 
 
 if __name__ == '__main__':
-    dataset1_test = np.load("../data1/normalized_test_data_500ms.npy")
+    dataset1_test = np.load("../data1/500ms/normalized_test_data_500ms.npy")
     y_test = dataset1_test[:, -1]
 
     print("before balanced generation....\n")
@@ -93,19 +93,19 @@ if __name__ == '__main__':
         x_test = np.append(x_test, new_array , axis=0)
 
     x_test = np.reshape(x_test, (565, 100, 13))
-    np.save("../data2/x_test_data.npy", x_test)
+    np.save("../data2/x_test_data_new.npy", x_test)
 
     # y_test_final = []
     # for line in range(0, y_test.shape[0], 2):
     #     r = [int(y_test[line]), int(y_test[line + 1])]
     #     y_test_final.append(r)
     y_test_final = np.array(ground_truth_pairs)
-    np.save("../data2/y_test_data.npy", ground_truth_pairs)
+    np.save("../data2/y_test_data_new.npy", ground_truth_pairs)
 
     print("\npairs_count:")
     print(pairs_count)
 
-    # This returns error:
+    pairs_count_str = {str(k): v for k, v in pairs_count.items()}
     with open("../data2/pairs_count.json", "w") as write_file:
-        json.dump(pairs_count, write_file)
+        json.dump(pairs_count_str, write_file)
 

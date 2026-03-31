@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-from keras.models import Sequential
-from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, LSTM, GRU
+from keras.models import Sequential, Model
+from keras.layers import Conv2D, MaxPooling2D, Flatten, Dense, Dropout, LSTM, GRU, Input
 from tensorflow import keras
 import tensorflow as tf
 from tensorflow.keras import layers
