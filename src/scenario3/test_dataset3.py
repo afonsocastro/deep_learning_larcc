@@ -1,9 +1,11 @@
 #!/usr/bin/env python3
 
-import keras
+from keras.models import load_model
+from keras_nlp.layers import SinePositionEncoding, TransformerEncoder
 from numpy import save
 from progressbar import progressbar
 import numpy as np
+from config.definitions import ROOT_DIR
 
 
 if __name__ == '__main__':
@@ -13,30 +15,32 @@ if __name__ == '__main__':
     labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
     n_labels = len(labels)
 
-    x_test = np.load("../../haptic_data/full_timewindow/data/normalized_data_15s.npy")
+    x_test = np.load(ROOT_DIR + "/haptic_data/data3/normalized_data_15s.npy")
     x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], x_test.shape[2], 1))
     x_test = x_test[:, :, :-1, :]
     y_test = x_test[:, :, -1, :]
 
-    version = "v1_1"
-    cnn_model = keras.models.load_model(version + "/cnn_v1_1.keras")
+    version = "v1_2"
+    model = load_model(ROOT_DIR + "/recurrent/models/"+version+"/lstm_"+version+".keras")
 
-    # cnn TESTING
-    pred_cnn = []
+    # model = load_model(ROOT_DIR + "/transformers/models/" + version + "/transformer_" + version + ".keras",
+    #     custom_objects={"SinePositionEncoding": SinePositionEncoding, "TransformerEncoder": TransformerEncoder},compile=False)
+
+    # TESTING
+    pred = []
     for i in progressbar(range(len(x_test)), redirect_stdout=True):
-    # for i in range(0, len(x_test_cnn)):
         sample_pred = []
         for sw in range(0, time_steps-sliding_window+1):
-            prediction = cnn_model.predict(x=x_test[i:i+1, sw:sw+sliding_window, :, :], verbose=2)
+            prediction = model.predict(x=x_test[i:i+1, sw:sw+sliding_window, :, :], verbose=2)
             sample_pred.append(prediction)
 
-        pred_cnn.append(sample_pred)
+        pred.append(sample_pred)
 
-    pred_cnn = np.array(pred_cnn)
+    pred = np.array(pred)
     print("\n")
-    print("pred_cnn.shape")
-    print(pred_cnn.shape)
+    print("pred.shape")
+    print(pred.shape)
     print("\n")
-    pred_cnn = np.reshape(pred_cnn, (pred_cnn.shape[0], pred_cnn.shape[1], pred_cnn.shape[3]))
+    pred = np.reshape(pred, (pred.shape[0], pred.shape[1], pred.shape[3]))
 
-    save(version + "/data3_pred_cnn_" + version + ".npy", pred_cnn)
+    save("data3_pred_lstm_" + version + ".npy", pred)

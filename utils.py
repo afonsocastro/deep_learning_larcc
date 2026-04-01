@@ -13,6 +13,48 @@ from keras import backend as K
 import json
 
 
+def plot_true_shadow(ts, t, a):
+    last = len(ts)
+    start = 0
+    expected_transitions = []
+    for i in ts:
+        if (i != 0 and t[i] != t[i-1]) or i == last-1:
+            expected_transitions.append(int(i))
+            end = i
+            if t[i-1] == 0:
+                color = "blue"
+            elif t[i-1] == 1:
+                color = "red"
+            elif t[i-1] == 2:
+                color = "green"
+            elif t[i-1] == 3:
+                color = "orange"
+            a.axvspan(start, end, color=color, alpha=0.2, lw=0)
+            start = end
+    return expected_transitions[:-1]
+
+def value_for_array(data, timesteps):
+    pull = np.array([data[j][0] for j in range(timesteps)])
+    push = np.array([data[j][1] for j in range(timesteps)])
+    shake = np.array([data[j][2] for j in range(timesteps)])
+    twist = np.array([data[j][3] for j in range(timesteps)])
+
+    return pull, push, shake, twist
+
+def grouping_segments(categories_list, delay):
+    predicted_segments = []
+    start_idx = 0
+    current_label = categories_list[0]
+    for i in range(1, len(categories_list)):
+        if categories_list[i] != current_label:
+            predicted_segments.append((int(current_label), start_idx + delay, i - 1 + delay))
+            start_idx = i
+            current_label = categories_list[i]
+    predicted_segments.append((int(current_label), start_idx + delay, len(categories_list) - 1 + delay))
+    return predicted_segments
+
+
+
 def plot_confusion_matrix_percentage(confusion_matrix, display_labels=None, cmap="viridis",
                                      xticks_rotation="horizontal", title="Confusion Matrix", decimals=.1):
     colorbar = True

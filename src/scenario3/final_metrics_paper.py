@@ -7,6 +7,8 @@ import pandas as pd
 import matplotlib.gridspec as gridspec
 from prettytable import PrettyTable
 import statistics
+from config.definitions import ROOT_DIR
+from utils import value_for_array, plot_true_shadow
 
 
 
@@ -63,7 +65,6 @@ def compute_segment_metrics(gt, pred):
 
     accuracy = tp_len / total_gt_len
     return accuracy, precision, recall, f1
-
 
 
 def computing_transient_metrics (expected_trans, real_trans):
@@ -126,34 +127,6 @@ def computing_transient_metrics (expected_trans, real_trans):
     return total_expected, total_correct, ghost_transitions, total_extra_bad, sum_delay, sum_duration
 
 
-def value_for_array(data, timesteps):
-    pull = np.array([data[j][0] for j in range(timesteps)])
-    push = np.array([data[j][1] for j in range(timesteps)])
-    shake = np.array([data[j][2] for j in range(timesteps)])
-    twist = np.array([data[j][3] for j in range(timesteps)])
-
-    return pull, push, shake, twist
-
-def plot_true_shadow(ts, t, a):
-    last = len(ts)
-    start = 0
-    expected_transitions = [19]
-    for i in ts:
-        if (i != 0 and t[i] != t[i-1]) or i == last-1:
-            expected_transitions.append(int(i))
-            end = i
-            if t[i-1] == 0:
-                color = "blue"
-            elif t[i-1] == 1:
-                color = "red"
-            elif t[i-1] == 2:
-                color = "green"
-            elif t[i-1] == 3:
-                color = "orange"
-            a.axvspan(start, end, color=color, alpha=0.2, lw=0)
-            start = end
-    return expected_transitions[:-1]
-
 def grouping_segments(categories_list, delay):
     predicted_segments = []
     start_idx = 0
@@ -166,77 +139,6 @@ def grouping_segments(categories_list, delay):
     predicted_segments.append((int(current_label), start_idx + delay, len(categories_list) - 1 + delay))
     return predicted_segments
 
-# def plot_predicted_transition_shadow(ts, second_derivative_gap, predictions, sample, a):
-#     last = len(ts) #350
-#     first_that_count = last - len(second_derivative_gap) #21
-#     start = first_that_count
-#     counting = False
-#     count = 0
-#     previous_color = None
-#     predicted_sequence = []
-#     switch_color_case = { "blue": 0, "red": 1, "green": 2, "orange": 3, "grey": 4}
-#     for i in ts[first_that_count+10:]:
-#         std_dev = np.std(second_derivative_gap[i-first_that_count-10:i-first_that_count])
-#         if std_dev > 0.05:
-#             end = i
-#             color = "grey"
-#             alpha = 0.9
-#         else:
-#             end = i
-#             pull_pred = 0
-#             push_pred = 0
-#             shake_pred = 0
-#             twist_pred = 0
-#             for model in ["cnn", "lstm", "transformer"]:
-#                 pull_pred += predictions[model][sample][i-first_that_count][0]
-#                 push_pred += predictions[model][sample][i-first_that_count][1]
-#                 shake_pred += predictions[model][sample][i-first_that_count][2]
-#                 twist_pred += predictions[model][sample][i-first_that_count][3]
-#             sum_preds = [pull_pred, push_pred, shake_pred, twist_pred]
-#
-#             pred_primitive = sum_preds.index(max(sum_preds))
-#             if pred_primitive == 0:
-#                 color = "blue"
-#             elif pred_primitive == 1:
-#                 color = "red"
-#             elif pred_primitive == 2:
-#                 color = "green"
-#             elif pred_primitive == 3:
-#                 color = "orange"
-#             alpha = 0.4
-#
-#         if color != previous_color or count == 10:
-#             if counting:
-#                 if count == 10:
-#                     count = 0
-#                     counting = False
-#                 else:
-#                     color = oldest_color
-#                     count = 0
-#                     counting = True
-#                     a.axvspan(start, end, color="grey", alpha=0.9, lw=0)
-#                     for i in range(start, end):
-#                         predicted_sequence.append(switch_color_case["grey"])
-#                     start = end
-#                     previous_color = "grey"
-#             else:
-#                 counting = True
-#                 oldest_color = previous_color
-#                 previous_color = color
-#
-#         if counting:
-#             count += 1
-#         else:
-#             a.axvspan(start, end, color=color, alpha=alpha, lw=0)
-#             for i in range(start, end):
-#                 predicted_sequence.append(switch_color_case[color])
-#             start = end
-#             previous_color = color
-#     predicted_sequence.append(switch_color_case[color])
-#     predicted_segments = grouping_segments(predicted_sequence, delay=first_that_count)
-#     return predicted_segments
-
-
 def plot_predicted_transition_shadow(ts, models, entropy_combined_mean, predictions, sample, a):
     last = len(ts) #6000
     first_that_count = last - len(entropy_combined_mean) #19
@@ -248,10 +150,10 @@ def plot_predicted_transition_shadow(ts, models, entropy_combined_mean, predicti
     predicted_sequence = []
     switch_color_case = { "blue": 0, "red": 1, "green": 2, "orange": 3, "grey": 4}
     for i in ts[first_that_count:]:
-        print("\ni")
-        print(i)
-        print("entropy_combined_mean[i-first_that_count]")
-        print(entropy_combined_mean[i-first_that_count])
+        # print("\ni")
+        # print(i)
+        # print("entropy_combined_mean[i-first_that_count]")
+        # print(entropy_combined_mean[i-first_that_count])
         if entropy_combined_mean[i-first_that_count] > 1.5:
             end = i
             color = "grey"
@@ -357,26 +259,19 @@ if __name__ == '__main__':
     time_steps = 1500
     sliding_window = 20
     entropy_epsilon = 0.05
-    # models_versions = ["_v1_1", "_v1_2", "_v1_1"]
-    models_versions = ["_v1_1"]
-    # models = ["cnn", "lstm", "transformer"]
-    models = ["cnn"]
+    models_versions = ["_v1_1", "_v1_2", "_v1_1"]
+    models = ["cnn", "lstm", "transformer"]
+    models_folder = ["convolutional", "recurrent", "transformers"]
     predictions = {}
     t = PrettyTable(['Sample', 'Acc', 'Prec', 'Rec', 'F1', 'Ghost' , 'extra bad', 'Corr', 'Exp', 'Delay', 'Duration'])
     final_table_list = []
-    # remove_idx = [2, 7, 11, 14, 15, 17]
-    remove_idx = [1, 6]
-    for model, version in zip(models, models_versions):
-        # predictions[model] = load("dataset3_old_results/data3_pred_" + model + version + ".npy")
-        predictions[model] = load("dataset3_pred/data3_pred_" + model + version + ".npy")
-        predictions[model] = np.delete(predictions[model], remove_idx, axis=0)
+    # remove_idx = [1, 6]
+    for model, version, folder in zip(models, models_versions, models_folder):
+        predictions[model] = load(ROOT_DIR + "/" + folder + "/dataset3_results/data3_pred_" + model + version + ".npy")
+        # predictions[model] = np.delete(predictions[model], remove_idx, axis=0)
 
-    # y_data = np.load("../haptic_data/data3_old/global_normalized_data.npy")
-
-    # y_labels = y_data[:, :, -1]
-
-    y_data = np.load("../haptic_data/full_timewindow/data/normalized_data_15s.npy")
-    y_data = np.delete(y_data, remove_idx, axis=0)
+    y_data = np.load(ROOT_DIR + "/haptic_data/data3/normalized_data_15s.npy")
+    # y_data = np.delete(y_data, remove_idx, axis=0)
     y_labels = y_data[:, :, -1]
 
     plot_times = np.array([i for i in range(19, time_steps)])
@@ -388,16 +283,12 @@ if __name__ == '__main__':
     total_corrected_transitions = 0
     total_delay = 0
     total_duration = 0
-
     accuracy = 0
 
     for sample in range(0, len(y_labels)):
         print("sample: " +str(sample)+"/"+str(len(y_labels)-1))
-        # Create figure with GridSpec for custom subplot heights
         fig = plt.figure(figsize=(16, 10))
         gs = gridspec.GridSpec(5, 1, height_ratios=[1, 1, 4, 4, 4])  # First subplot thinner
-        # axes = [fig.add_subplot(gs[i]) for i in range(4)]
-        # Create axes and share x-axis
         axes = [fig.add_subplot(gs[0])]  # first axis (thin one)
         for i in range(1, 5):
             axes.append(fig.add_subplot(gs[i], sharex=axes[0]))
@@ -505,8 +396,9 @@ if __name__ == '__main__':
         # plt.show()
         # t = PrettyTable(
         #     ['Sample', 'Acc', 'Prec', 'Rec', 'F1', 'Ghost', 'extra bad', 'Corr', 'Exp', 'Delay', 'Duration'])
-        final_table_list.append([round(metrics[0], 3), round(metrics[1], 3), round(metrics[2], 3), round(metrics[3], 3), ghost, extra_bad, corr, exp, round(sdel/corr, 3), round(sdur/corr, 3) ])
-        t.add_row([sample, round(metrics[0], 3), round(metrics[1], 3), round(metrics[2], 3), round(metrics[3], 3), ghost, extra_bad, corr, exp, round(sdel/corr, 3), round(sdur/corr, 3) ])
+        if corr != 0:
+            final_table_list.append([round(metrics[0], 3), round(metrics[1], 3), round(metrics[2], 3), round(metrics[3], 3), ghost, extra_bad, corr, exp, round(sdel/corr, 3), round(sdur/corr, 3) ])
+            t.add_row([sample, round(metrics[0], 3), round(metrics[1], 3), round(metrics[2], 3), round(metrics[3], 3), ghost, extra_bad, corr, exp, round(sdel/corr, 3), round(sdur/corr, 3) ])
 
     means = [round(statistics.mean(col), 3) for col in zip(*final_table_list)]
     t.add_row(["TOTAL", means[0], means[1], means[2], means[3], means[4], means[5], means[6], means[7], means[8], means[9]])

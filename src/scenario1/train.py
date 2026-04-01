@@ -5,7 +5,7 @@ from matplotlib import pyplot as plt
 from tensorflow.keras.utils import plot_model
 from tensorflow.keras.utils import to_categorical  # one-hot encode target column
 import numpy as np
-from src.create_models import create_cnn_v1_3, create_lstm_v1_5, create_transformer_v3_0
+from src.create_models import create_cnn_v1_3, create_lstm_v1_5, create_transformer_v1_1
 from config.definitions import ROOT_DIR
 
 
@@ -27,7 +27,7 @@ if __name__ == '__main__':
     print("y_train.shape")
     print(y_train.shape)
 
-    model, model_name = create_transformer_v3_0()
+    model, model_name = create_transformer_v1_1()
 
     model.compile(optimizer=Adam(learning_rate=1e-4), loss='categorical_crossentropy', metrics=['accuracy'])
     model.summary()

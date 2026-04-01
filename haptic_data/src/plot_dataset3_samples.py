@@ -34,16 +34,13 @@ class DataPlotter:
             axis.grid()
 
 
-        labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
-        label_idx = int(self.data[self.idx, -1])
-        label_name = labels[label_idx]
-        x_axis = np.linspace(0, 0.2, self.measurements)
+        # labels = ['PULL', 'PUSH', 'SHAKE', 'TWIST']
+        # label_idx = int(self.data[self.idx, -1])
+        # label_name = labels[label_idx]
 
-        data_vector = self.data[self.idx, :-1]
-        data_array = np.reshape(
-            data_vector,
-            (self.measurements, int(len(data_vector) / self.measurements))
-        )
+        x_axis = np.linspace(0, 15, self.measurements)
+
+        data_array = self.data[self.idx, : ,  :-1]
 
         graph_color = ["-r", "-g", "-b", "-y", "-k", "-m",
                        "-r", "-g", "-b", "-r", "-g", "-b"]
@@ -51,8 +48,8 @@ class DataPlotter:
         # --- Joints ---
         joints_max = []
         for i in range(0, 6):
-            joints_max.append(max(abs(data_array[:, i + 1])))
-            self.ax[0].plot(x_axis, data_array[:, i + 1], graph_color[i])
+            joints_max.append(max(abs(data_array[:, i])))
+            self.ax[0].plot(x_axis, data_array[:, i], graph_color[i])
 
         self.ax[0].set_title("Joints efforts")
         self.ax[0].legend(["J0", "J1", "J2", "J3", "J4", "J5"])
@@ -61,8 +58,8 @@ class DataPlotter:
         # --- Forces ---
         forces_max = []
         for i in range(6, 9):
-            forces_max.append(max(abs(data_array[:, i + 1])))
-            self.ax[1].plot(x_axis, data_array[:, i + 1], graph_color[i])
+            forces_max.append(max(abs(data_array[:, i])))
+            self.ax[1].plot(x_axis, data_array[:, i], graph_color[i])
 
         self.ax[1].set_title("Gripper Forces")
         self.ax[1].legend(["Fx", "Fy", "Fz"])
@@ -71,8 +68,8 @@ class DataPlotter:
         # --- Torques ---
         torques_max = []
         for i in range(9, 12):
-            torques_max.append(max(abs(data_array[:, i + 1])))
-            self.ax[2].plot(x_axis, data_array[:, i + 1], graph_color[i])
+            torques_max.append(max(abs(data_array[:, i])))
+            self.ax[2].plot(x_axis, data_array[:, i], graph_color[i])
 
         self.ax[2].set_title("Gripper Moments")
         self.ax[2].legend(["Mx", "My", "Mz"])
@@ -80,7 +77,7 @@ class DataPlotter:
         self.ax[2].set_xlabel("Time (s)")
 
 
-        self.fig.suptitle(f"Sample {self.idx} | Class: {label_name}", fontsize=16)
+        self.fig.suptitle(f"Sample {self.idx}", fontsize=16)
 
         self.fig.canvas.draw_idle()
 
@@ -94,5 +91,5 @@ class DataPlotter:
         self.update_graph()
 
 if __name__ == "__main__":
-    data = np.load(ROOT_DIR + "/haptic_data/data1/200ms/normalized_train_data_200ms.npy")
-    DataPlotter(data, measurements=20)
+    data = np.load(ROOT_DIR + "/haptic_data/data3/normalized_data_15s.npy")
+    DataPlotter(data, measurements=1500)
