@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.gridspec as gridspec
 from config.definitions import ROOT_DIR
-from utils import value_for_array, plot_true_shadow
+from utils import value_for_array, plot_shadow
 
 if __name__ == '__main__':
     time_steps = 1500
@@ -26,9 +26,9 @@ if __name__ == '__main__':
 
     for sample in range(0, len(y_labels)):
         fig = plt.figure(figsize=(16, 10))
-        gs = gridspec.GridSpec(4, 1, height_ratios=[1, 4, 4, 4])  # First subplot thinner
+        gs = gridspec.GridSpec(5, 1, height_ratios=[1, 4, 4, 4, 4])  # First subplot thinner
         axes = [fig.add_subplot(gs[0])]  # first axis (thin one)
-        for i in range(1, 4):
+        for i in range(1, 5):
             axes.append(fig.add_subplot(gs[i], sharex=axes[0]))
 
         plt.subplots_adjust(hspace=0)
@@ -41,12 +41,12 @@ if __name__ == '__main__':
                                  "shake": pd.DataFrame({'timestep': plot_times, 'shake': shake}),
                                  "twist": pd.DataFrame({'timestep': plot_times, 'twist': twist})}
 
-        plot_true_shadow(real_times, true_labels, axes[0])
+        plot_shadow(real_times, true_labels, axes[0])
         axes[0].set_ylabel("Ground\nTruth")
         axes[0].set_title('Dataset 3: sample ' + str(sample+1) + ' / 9')
 
         colors = {"pull": "blue", "push": "red", "shake": "green", "twist": "orange"}
-        for ax, model in zip(axes[1:], models):
+        for ax, model in zip(axes[1:4], models):
             for movement, movement_df in graph_data[model].items():
                 ax.plot(movement_df["timestep"].values, movement_df[movement].values, color=colors[movement], linewidth=2, label=movement)
 
@@ -58,7 +58,35 @@ if __name__ == '__main__':
             elif model == "transformer":
                 ax.set_ylabel("TRANSFORMER", fontsize=12, fontweight="bold")
 
+        # --- Soma CNN + Transformer ---
+        cnn_data = graph_data["cnn"]
+        trans_data = graph_data["transformer"]
+
+        pull_sum = cnn_data["pull"]["pull"].values + trans_data["pull"]["pull"].values
+        push_sum = cnn_data["push"]["push"].values + trans_data["push"]["push"].values
+        shake_sum = cnn_data["shake"]["shake"].values + trans_data["shake"]["shake"].values
+        twist_sum = cnn_data["twist"]["twist"].values + trans_data["twist"]["twist"].values
+        #
+        # --- Aplicar condição ---
+        mask = shake_sum > 0.6
+
+        pull_sum[mask] = 0.04
+        push_sum[mask] = 0.04
+        twist_sum[mask] = 0.04
+        shake_sum[mask] = 1.88
+
+        # --- Plot ---
+        t = trans_data["pull"]["timestep"].values
+
+        axes[4].plot(t, pull_sum, color=colors["pull"], linewidth=2, label="pull")
+        axes[4].plot(t, push_sum, color=colors["push"], linewidth=2, label="push")
+        axes[4].plot(t, shake_sum, color=colors["shake"], linewidth=2, label="shake")
+        axes[4].plot(t, twist_sum, color=colors["twist"], linewidth=2, label="twist")
+
+        axes[4].set_ylabel("CNN + TRANSFORMER", fontsize=12, fontweight="bold")
+        axes[4].legend()
+
         plt.xlabel("Timesteps")
         plt.tight_layout()
-        # plt.show()
-        plt.savefig("dataset3_predictions/sample_"+str(sample)+".png", bbox_inches='tight')
+        plt.show()
+        # plt.savefig("dataset3_predictions/sample_"+str(sample)+".png", bbox_inches='tight')

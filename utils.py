@@ -13,10 +13,11 @@ from keras import backend as K
 import json
 
 
-def plot_true_shadow(ts, t, a):
+def plot_shadow(ts, t, a):
     last = len(ts)
     start = 0
     expected_transitions = []
+    color = "grey"
     for i in ts:
         if (i != 0 and t[i] != t[i-1]) or i == last-1:
             expected_transitions.append(int(i))
@@ -29,6 +30,8 @@ def plot_true_shadow(ts, t, a):
                 color = "green"
             elif t[i-1] == 3:
                 color = "orange"
+            elif t[i-1] == 4:
+                color = "grey"
             a.axvspan(start, end, color=color, alpha=0.2, lw=0)
             start = end
     return expected_transitions[:-1]
