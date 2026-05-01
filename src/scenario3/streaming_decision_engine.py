@@ -11,7 +11,7 @@ from utils import value_for_array, plot_shadow, grouping_segments
 
 
 class StreamingDecisionEngine():
-    def __init__(self, true_labels=None, plot=False, shake_threshold=0.3, entropy_threshold=0.5, cnn_weight=0.5,
+    def __init__(self, sequence = None, true_labels=None, plot=False, shake_threshold=0.3, entropy_threshold=0.5, cnn_weight=0.5,
                  transformer_weight=0.5, min_steady_timesteps=10):
         self.final_sequence = []
 
@@ -34,7 +34,7 @@ class StreamingDecisionEngine():
         self.draw_plot = False
 
         if plot:
-            self.init_plot(true_labels)
+            self.init_plot(sequence, true_labels)
 
     def predict_haptic_sequence(self, predictions, timestep):
         pull_cnn, push_cnn, shake_cnn, twist_cnn = predictions["cnn"][0], predictions["cnn"][1], predictions["cnn"][2], \
@@ -57,13 +57,23 @@ class StreamingDecisionEngine():
         arr_safe = np.where(probs < 0.001, 0.001, probs)
         entropy = - np.sum(arr_safe * np.log2(arr_safe))
 
+
         if entropy > self.entropy_threshold:
             self.new_primitive = 4
         else:
             self.new_primitive = np.argmax(probs)
-
+        # print("\n--------------------------------------------------")
+        # print("timestep: ", timestep)
+        # print("self.is_counting: ", self.is_counting)
+        # print("self.new_primitive_counter: ", self.new_primitive_counter)
+        # print("self.new_primitive: ", self.new_primitive)
+        # print("self.previous_primitive: ", self.previous_primitive)
+        # print("self.last_confirmed_primitive: ", self.last_confirmed_primitive)
+        # print("self.idx_where_counter_started: ", self.idx_where_counter_started)
+        # print("--------------------------------------------------\n")
         if (self.new_primitive != self.previous_primitive) and (self.previous_primitive == self.last_confirmed_primitive):
            self.is_counting = True
+           self.new_primitive_counter = 0
            self.idx_where_counter_started = timestep
 
         elif (self.new_primitive != self.previous_primitive) and (
@@ -92,7 +102,7 @@ class StreamingDecisionEngine():
         self.previous_primitive = self.new_primitive
         self.final_sequence.append(self.new_primitive)
 
-    def init_plot(self, true_labels):
+    def init_plot(self, sequence, true_labels):
         self.window_size = 20
         self.draw_plot = True
         self.colors = {"pull": "blue", "push": "red", "shake": "green", "twist": "orange"}
@@ -103,7 +113,7 @@ class StreamingDecisionEngine():
         self.twist_vals = []
         self.entropy_vals = []
         self.fig = plt.figure(figsize=(16, 10))
-        self.fig.suptitle("Streaming Haptic Prediction", fontsize=16)
+        self.fig.suptitle("Streaming Haptic Prediction \n\n Sequence " + str(sequence), fontsize=16)
         self.gs = gridspec.GridSpec(4, 1, height_ratios=[1, 4, 4, 1])
         self.axes = [self.fig.add_subplot(self.gs[0])]
         self.axes.append(self.fig.add_subplot(self.gs[1], sharex=self.axes[0]))
@@ -120,6 +130,7 @@ class StreamingDecisionEngine():
         plot_shadow(np.array([i for i in range(0, self.max_timesteps)]), true_labels, self.axes[0])
         self.axes[0].set_ylabel("Ground\nTruth")
         self.axes[0].set_yticklabels([])
+
         self.line_pull, = self.axes[1].plot([], [], color=self.colors["pull"], linewidth=2, label="pull")
         self.line_push, = self.axes[1].plot([], [], color=self.colors["push"], linewidth=2, label="push")
         self.line_shake, = self.axes[1].plot([], [], color=self.colors["shake"], linewidth=2, label="shake")
@@ -195,11 +206,11 @@ class StreamingDecisionEngine():
 if __name__ == '__main__':
     time_steps = 1500
     sliding_window = 20
-    sample = 7
-    predictions = {"cnn": load(ROOT_DIR + "/convolutional/dataset3_results/data3_pred_cnn_v1_1.npy"),
-                   "transformer": load(ROOT_DIR + "/transformers/dataset3_results/data3_pred_transformer_v1_1.npy")}
-    y_data = np.load(ROOT_DIR + "/haptic_data/data3/normalized_data_15s.npy")
-    true_labels = y_data[sample, :, -1]
+    sequence = 49
+    predictions = {"cnn": load(ROOT_DIR + "/convolutional/dataset3_results/data3_pred_cnn_v1_1_filtered.npy"),
+                   "transformer": load(ROOT_DIR + "/transformers/dataset3_results/data3_pred_transformer_v1_1_filtered.npy")}
+    y_data = np.load(ROOT_DIR + "/haptic_data/data3/normalized_data_filtered.npy")
+    true_labels = y_data[sequence, :, -1]
 
     ground_truth_sequence = grouping_segments(true_labels, delay=0)
     print("ground_truth_sequence")
@@ -208,12 +219,15 @@ if __name__ == '__main__':
 
     outptus={"cnn": None, "transformer":None}
 
-    sde = StreamingDecisionEngine(true_labels=true_labels,plot=True)
-    # sde = StreamingDecisionEngine()
+    # sde = StreamingDecisionEngine(sequence=sequence, true_labels=true_labels, plot=True)
+    sde = StreamingDecisionEngine(sequence=sequence, true_labels=true_labels, plot=True,
+                                  shake_threshold=0.4225310961665625, entropy_threshold=0.8509101638849345,
+                                  cnn_weight=0.3000312372033389, transformer_weight=0.6999687627966611,
+                                  min_steady_timesteps=25)
 
     for t_idx, ts in enumerate(iterator_times):
-        outptus["cnn"] = predictions["cnn"][sample][ts]
-        outptus["transformer"] = predictions["transformer"][sample][ts]
+        outptus["cnn"] = predictions["cnn"][sequence][ts]
+        outptus["transformer"] = predictions["transformer"][sequence][ts]
 
         sde.predict_haptic_sequence(outptus, ts)
 

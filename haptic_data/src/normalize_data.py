@@ -15,7 +15,7 @@ if __name__ == '__main__':
     data_max_gripper_M = abs(max(clusters_max_min["gripper_M"]["max"], clusters_max_min["gripper_M"]["min"], key=abs))
     print("data_max_gripper_M")
     print(data_max_gripper_M)
-    experiment_data = np.load(ROOT_DIR + "/haptic_data/data3/raw_learning_data_15s.npy")
+    experiment_data = np.load(ROOT_DIR + "/haptic_data/data3/raw_learning_data.npy")
     experiment_data = experiment_data[:,:,1:] #Remove the timestamp column
     array_norm = np.empty((0, experiment_data.shape[1], experiment_data.shape[2]))
 
@@ -23,11 +23,9 @@ if __name__ == '__main__':
         data_array = experiment_data[sample]
         result = np.reshape(data_array[:, -1], (data_array.shape[0], 1))
         data_array = data_array[:, :-1]
-        # data_array = data_array[:, 1:-1]
 
         data_array_norm = np.empty((data_array.shape[0], 0))
 
-        # data_array_norm = np.hstack((data_array_norm, data_array[:, 0:1] / data_max_timestamp))
         data_array_norm = np.hstack((data_array_norm, data_array[:, 0:6] / data_max_joints))
         data_array_norm = np.hstack((data_array_norm, data_array[:, 6:9] / data_max_gripper_F))
         data_array_norm = np.hstack((data_array_norm, data_array[:, 9:12] / data_max_gripper_M))
@@ -37,4 +35,4 @@ if __name__ == '__main__':
                                np.reshape(data_array_norm, (1, data_array_norm.shape[0], data_array_norm.shape[1])),
                                axis=0)
 
-    np.save(ROOT_DIR + "/haptic_data/data3/normalized_data_15s.npy", array_norm)
+    np.save(ROOT_DIR + "/haptic_data/data3_new/normalized_data.npy", array_norm)
